@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "682040128438",
+    "project_id": "misterfixid-83b4b",
+    "storage_bucket": "misterfixid-83b4b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:682040128438:android:431b89bbee0ee714894717",
+        "android_client_info": {
+          "package_name": "com.am.misterfix"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "682040128438-g8h0b60lnai2vt35bo1sc8l39u8qqku4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.am.misterfix",
+            "certificate_hash": "defc377ce0f49fd2d1545bb4ad1873f5452bb13e"
+          }
+        },
+        {
+          "client_id": "682040128438-mq40gr0u2793kdlsg4rh0dsmh1uds267.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.am.misterfix",
+            "certificate_hash": "5f9460aae7a94f387469b0bd5997140a5f1bda53"
+          }
+        },
+        {
+          "client_id": "682040128438-m2p8tfaure9hrap5qtboodsrfmbo5je9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwWIdSyD0R0zemxJh647g8QZqdxTBIc0c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "682040128438-m2p8tfaure9hrap5qtboodsrfmbo5je9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
