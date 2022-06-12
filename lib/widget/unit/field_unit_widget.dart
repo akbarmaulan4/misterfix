@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:misterfix/model/unit/address/address_model.dart';
+import 'package:misterfix/model/unit/pelanggan/pelanggan_corp_model.dart';
 import 'package:misterfix/model/unit/pelanggan/pelanggan_model.dart';
 import 'package:misterfix/model/unit/pic/model_pic.dart';
 import 'package:misterfix/utils/color_code.dart';
@@ -49,7 +50,8 @@ class _FieldUnitWidgetState extends State<FieldUnitWidget> {
         ),
         suggestionsCallback: (pattern) async {
           // return await BackendService.getSuggestions(pattern);
-          return widget.data ?? [];
+          // return widget.data ?? [];
+          return queryData(widget.type ?? '', pattern);
         },
         hideOnError: true,
         itemBuilder: (context, suggestion) {
@@ -72,9 +74,33 @@ class _FieldUnitWidgetState extends State<FieldUnitWidget> {
     );
   }
 
+  queryData(String type, String key){
+    switch(type){
+      case 'customer':
+        var data = widget.data as List<PelangganModel>;
+        var result = data.where((element) => element.name.toLowerCase().contains(key)).toList();
+        return result;
+      case 'corp':
+        var data = widget.data as List<PelangganCorpModel>;
+        var result = data.where((element) => element.corp_name.toLowerCase().contains(key)).toList();
+        return result;
+      case 'location':
+        var data = widget.data as List<AddressModel>;
+        var result = data.where((element) => element.address.toLowerCase().contains(key)).toList();
+        return result;
+      case 'pic':
+        var data = widget.data as List<ModelPIC>;
+        var result = data.where((element) => element.name.toLowerCase().contains(key)).toList();
+        return result;
+      default:null;
+    }
+  }
+
   getId(String type){
     switch(type){
       case 'customer':
+        return 1988;
+      case 'corp':
         return 1988;
       case 'location':
         return 1989;
@@ -86,7 +112,7 @@ class _FieldUnitWidgetState extends State<FieldUnitWidget> {
 
   getLeading(var data){
     if(data != null){
-      if(data.id == 1988 || data.id == 1989){
+      if(data.id == 1988 || data.id == 1989 || data.id == 1990){
         return Icon(Icons.add_circle_outline_rounded, color: Utils.colorFromHex(ColorCode.bluePrimary),);
       }
     }else{
@@ -96,6 +122,8 @@ class _FieldUnitWidgetState extends State<FieldUnitWidget> {
   getLabel(String type){
     switch(type){
       case 'customer':
+        return 'Tambah Customer Baru';
+      case 'corp':
         return 'Tambah Customer Baru';
       case 'location':
         return 'Tambah Alamat Baru';
@@ -108,6 +136,8 @@ class _FieldUnitWidgetState extends State<FieldUnitWidget> {
     switch(type){
       case 'customer':
         return data as PelangganModel;
+      case 'corp':
+        return data as PelangganCorpModel;
       case 'location':
         return data as AddressModel;
       case 'pic':
@@ -119,6 +149,8 @@ class _FieldUnitWidgetState extends State<FieldUnitWidget> {
     switch(type){
       case 'customer':
         return (data as PelangganModel).name;
+      case 'corp':
+        return (data as PelangganCorpModel).corp_name;
       case 'location':
         return (data as AddressModel).address;
       case 'pic':
@@ -129,6 +161,9 @@ class _FieldUnitWidgetState extends State<FieldUnitWidget> {
   setField(String type, var data){
     switch(type){
       case 'customer':
+        widget.controller!.text = getModelLabel(widget.type ?? '', data);
+        break;
+      case 'corp':
         widget.controller!.text = getModelLabel(widget.type ?? '', data);
         break;
       case 'location':

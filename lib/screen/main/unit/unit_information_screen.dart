@@ -89,7 +89,6 @@ class _UnitInformationScreenState extends State<UnitInformationScreen> {
                         controller.changeTabInfoUnit(value);
                         controller.getFieldService(value.id.toString());
                       },
-                      // onClick: ()=>controller.changeTabInfoUnit(value.name)
                   ))).values.toList(),
                 ),
                 SizedBox(height: 25),
@@ -97,7 +96,6 @@ class _UnitInformationScreenState extends State<UnitInformationScreen> {
                   children: controller.dataSection.map((element) => loadSection(element)).toList(),
                 ):SizedBox(),
                 controller.dataSection.length > 0 ? sectionManual():SizedBox(),
-                // controller.dataFields.length > 0 ? section(controller.dataFields.value):SizedBox(),
                 SizedBox(height: 25),
                 ButtonMrFixWidget(
                   label: 'Simpan', 
@@ -109,16 +107,6 @@ class _UnitInformationScreenState extends State<UnitInformationScreen> {
                           context: context,
                           onSuccess: (data){
                             Get.to(()=>QrCodeScreen(data: data));
-                            // DialogConstant.messageInfo(
-                            //     context: context,
-                            //     title: 'Infromasi',
-                            //     message: 'Unit Berhasil dibuat',
-                            //     onClose: (){
-                            //       Get.back();
-                            //       // Get.back();
-                            //       Get.to(()=>QrCodeScreen(data: data));
-                            //     }
-                            // );
                           }
                       );
                     }else{

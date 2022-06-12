@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:misterfix/controller/notifikasi/notif_controller.dart';
 import 'package:misterfix/utils/color_code.dart';
 import 'package:misterfix/utils/constant_style.dart';
 import 'package:misterfix/utils/utils.dart';
@@ -12,6 +14,15 @@ class NotifikasiScreen extends StatefulWidget {
 }
 
 class _NotifikasiScreenState extends State<NotifikasiScreen> {
+  NotifController controller = NotifController();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    controller.getNotif();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,7 +38,8 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
           )
         ],
       ),
-      body: Container(
+
+      body: Obx(()=>Container(
         color: Utils.colorFromHex(ColorCode.bluePrimary),
         padding: EdgeInsets.only(top: 10),
         width: double.infinity,
@@ -62,21 +74,22 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
                 child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ItemOrderWidget(status: '15 Menit', colorStatus: Utils.colorFromHex(ColorCode.orangePrimary)),
-                      ItemOrderWidget(status: '20 Menit', colorStatus: Utils.colorFromHex(ColorCode.orangePrimary)),
-                      ItemOrderWidget(status: '2 Jam', colorStatus: Utils.colorFromHex(ColorCode.orangePrimary)),
-                      ItemOrderWidget(status: 'Hari ini', colorStatus: Colors.green),
-                      ItemOrderWidget(status: 'Minggu ini', colorStatus: Colors.green),
-                      ItemOrderWidget(status: 'Bulan ini', colorStatus: Colors.green),
-                    ],
+                    children: controller.dataUnred.map((element) => ItemOrderWidget(status: '15 Menit', colorStatus: Utils.colorFromHex(ColorCode.orangePrimary))).toList(),
+                    // children: [
+                    //   ItemOrderWidget(status: '15 Menit', colorStatus: Utils.colorFromHex(ColorCode.orangePrimary)),
+                    //   ItemOrderWidget(status: '20 Menit', colorStatus: Utils.colorFromHex(ColorCode.orangePrimary)),
+                    //   ItemOrderWidget(status: '2 Jam', colorStatus: Utils.colorFromHex(ColorCode.orangePrimary)),
+                    //   ItemOrderWidget(status: 'Hari ini', colorStatus: Colors.green),
+                    //   ItemOrderWidget(status: 'Minggu ini', colorStatus: Colors.green),
+                    //   ItemOrderWidget(status: 'Bulan ini', colorStatus: Colors.green),
+                    // ],
                   ),
                 ),
               ))
             ],
           ),
         ),
-      ),
+      )),
     );
   }
 }

@@ -8,6 +8,7 @@ import 'package:misterfix/utils/local_data.dart';
 
 class AuthController extends GetxController{
 
+  Rx<UserModel> dataUser = UserModel().obs;
   RxBool focusName = false.obs;
   RxBool focusEmail = false.obs;
   RxBool focusPhone = false.obs;
@@ -26,6 +27,7 @@ class AuthController extends GetxController{
   RxBool enableLogin = false.obs;
   RxBool enableRegister = false.obs;
   RxBool enableForget = false.obs;
+  RxBool enableReset = false.obs;
 
   RxString msgErrorName = ''.obs;
   RxString msgErrorEmail = ''.obs;
@@ -36,6 +38,7 @@ class AuthController extends GetxController{
 
   TextEditingController edtName = TextEditingController();
   TextEditingController edtEmail = TextEditingController();
+  TextEditingController edtEmailForget = TextEditingController();
   TextEditingController edtPassword = TextEditingController();
   TextEditingController edtConfirmPassword = TextEditingController();
   TextEditingController edtOldPassword = TextEditingController();
@@ -96,6 +99,20 @@ class AuthController extends GetxController{
     }
   }
 
+  isEnableReset(){
+    if(edtOldPassword.text.length > 0 &&
+        edtPassword.text.length > 0){
+      enableReset.value = true;
+    }else{
+      enableReset.value = false;
+    }
+    if(edtPassword.text.isNotEmpty && edtPassword.text.length < 8){
+      enableReset.value = false;
+    }else if(edtOldPassword.text.isNotEmpty && edtOldPassword.text.length < 8){
+      enableReset.value = false;
+    }
+  }
+
   isEnableLogin(){
     String pattern = r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
     RegExp regex = new RegExp(pattern);
@@ -104,11 +121,12 @@ class AuthController extends GetxController{
         edtPassword.text.length > 0 &&
         formatEmailValid.value){
       enableLogin.value = true;
+    }else if(regex.hasMatch(edtEmail.text)){
+      enableLogin.value = false;
+    }else if(edtPassword.text.isNotEmpty && edtPassword.text.length < 8){
+      enableLogin.value = false;
     }else{
       enableLogin.value = false;
-    }
-    if(edtPassword.text.isNotEmpty && edtPassword.text.length < 8){
-      enableRegister.value = false;
     }
   }
 
@@ -141,14 +159,22 @@ class AuthController extends GetxController{
     NewAPI.postRegister(edtName.text, edtEmail.text, edtPhone.text, edtPassword.text, (result, error) {
       Navigator.of(context).pop();
       if(error != null){
-        if(error['message']['name'] != null){
-          msgErrorName.value = error['message']['name'][0];
-        }else if(error['message']['email'] != null){
-          msgErrorEmail.value = error['message']['email'][0];
-        }else if(error['message']['telpon'] != null){
-          msgErrorPhone.value = error['message']['telpon'][0];
-        }else if(error['message']['password'] != null){
-          msgErrorPass.value = error['message']['password'][0];
+        try{
+          DialogConstant.messageAlert(
+            context: context,
+            title: 'Peringatan',
+            message: error['message'],
+          );
+        }catch(e){
+          if(error['message']['name'] != null){
+            msgErrorName.value = error['message']['name'][0];
+          }else if(error['message']['email'] != null){
+            msgErrorEmail.value = error['message']['email'][0];
+          }else if(error['message']['telpon'] != null){
+            msgErrorPhone.value = error['message']['telpon'][0];
+          }else if(error['message']['password'] != null){
+            msgErrorPass.value = error['message']['password'][0];
+          }
         }
       }
       if(result != null){
@@ -162,16 +188,20 @@ class AuthController extends GetxController{
     NewAPI.postLogin( edtEmail.text, edtPassword.text, (result, error) {
       Navigator.of(context).pop();
       if(error != null){
-        // DialogConstant.messageAlert(
-        //     context: context,
-        //     title: 'Peringatan',
-        //     message: error['message'],
-        // );
-        if(error['message']['email'] != null){
-          msgErrorEmail.value = error['message']['email'][0];
-        }else if(error['message']['password'] != null){
-          msgErrorPass.value = error['message']['password'][0];
+        try{
+          DialogConstant.messageAlert(
+            context: context,
+            title: 'Peringatan',
+            message: error['message'],
+          );
+        }catch(e){
+          if(error['message']['email'] != null){
+            msgErrorEmail.value = error['message']['email'][0];
+          }else if(error['message']['password'] != null){
+            msgErrorPass.value = error['message']['password'][0];
+          }
         }
+
       }
       if(result != null){
         LocalData.saveToken(result['data']['token']);
@@ -186,14 +216,19 @@ class AuthController extends GetxController{
 
   postChangePassword(BuildContext context, Function onSuccess){
     DialogConstant.loading(context, 'Mohon tunggu...');
-    NewAPI.postForgetpassword( edtOldPassword.text, edtPassword.text, (result, error) {
+    NewAPI.postChangePassword( edtOldPassword.text, edtPassword.text, (result, error) {
       Navigator.of(context).pop();
       if(error != null){
-        if(error['message']['email'] != null){
-          msgErrorEmail.value = error['message']['email'][0];
-        }else if(error['message']['password'] != null){
-          msgErrorPass.value = error['message']['password'][0];
-        }
+        DialogConstant.messageAlert(
+            context: context,
+            title: 'Peringatan',
+            message: error['message'],
+        );
+        // if(error['message']['email'] != null){
+        //   msgErrorEmail.value = error['message']['email'][0];
+        // }else if(error['message']['password'] != null){
+        //   msgErrorPass.value = error['message']['password'][0];
+        // }
       }
       if(result != null){
         // LocalData.saveToken(result['data']['token']);
@@ -204,5 +239,25 @@ class AuthController extends GetxController{
         onSuccess();
       }
     });
+  }
+
+  postForgetPassword(BuildContext context, String email, Function onSuccess, Function onError){
+    DialogConstant.loading(context, 'Mohon tunggu...');
+    NewAPI.postForgetPasswordEmail(email, (result, error) {
+      Get.back();
+      if(error != null){
+        onError(error['message']);
+      }
+      if(result != null){
+        onSuccess();
+      }
+    });
+  }
+
+  getDataLogin() async {
+    UserModel? data = await LocalData.getUser();
+    if(data != null){
+      dataUser.value = data;
+    }
   }
 }

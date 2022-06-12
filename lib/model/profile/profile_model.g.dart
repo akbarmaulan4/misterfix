@@ -11,8 +11,8 @@ ProfileModel _$fromJson(Map<String, dynamic> json) {
     ..jenis_kelamin = json['jenis_kelamin'] ?? ''
     ..role = json['role'] ?? ''
     ..status = json['status'] ?? -1
-    ..expertize = (json['expertize'] as List).map((e) => e.toString()).toList()
-    ..provider = json['provider'] ?? ''
+    ..expertize = (json['expertize'] as List).map((e) => e == null ? null : ModelItemKeahlian.fromJson(e as Map<String, dynamic>)).toList()
+    ..provider = json['provider'] != null ?  ModelProviderProfile.fromJson(json['provider']):ModelProviderProfile()
   ;
 }
 

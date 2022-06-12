@@ -11,10 +11,12 @@ import 'package:misterfix/screen/main/home/home_screen.dart';
 import 'package:misterfix/screen/main/main_screen.dart';
 import 'package:misterfix/utils/color_code.dart';
 import 'package:misterfix/utils/constant_style.dart';
+import 'package:misterfix/utils/dialog_constant.dart';
 import 'package:misterfix/utils/image_constant.dart';
 import 'package:misterfix/utils/local_data.dart';
 import 'package:misterfix/utils/utils.dart';
 import 'package:misterfix/widget/font/text_meta.dart';
+import 'package:misterfix/widget/unit/unit_tab_widget.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -58,6 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.initState();
     _handleSignOut();
     setRemeber();
+    controller.getDataLogin();
     _focusPass.addListener(() {onPassFocus(_focusPass.hasFocus);});
     _focusEmail.addListener(() {onEmailFocus(_focusEmail.hasFocus);});
   }
@@ -132,7 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           SizedBox(width: 8),
                           Expanded(child: TextMeta('Remember me', size: 14, weight: FontWeight.w400, color: Utils.colorFromHex(ColorCode.greyPrimary),)),
                           InkWell(
-                            onTap: ()=>Get.to(ForgetPasswordScreen()),
+                            onTap: ()=>dialogForgetPassword(),
                             child: TextMeta('Forget Password?', size: 14, weight: FontWeight.w400, color: Utils.colorFromHex(ColorCode.bluePrimary),)
                           ),
 
@@ -191,8 +194,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   TextMeta('Belum Punya akun? ', size: 14, weight: FontWeight.w400, color: Utils.colorFromHex(ColorCode.greyPrimary),),
                   InkWell(
-                      onTap: ()=>Get.to(()=>RegisterScreen())!.then((value) => FocusScope.of(context).requestFocus(new FocusNode())),
-                      child: TextMeta('Daftar', size: 14, weight: FontWeight.w400, color: Utils.colorFromHex(ColorCode.bluePrimary))
+                    onTap: ()=>Get.to(()=>RegisterScreen())!.then((value) => FocusScope.of(context).requestFocus(new FocusNode())),
+                    child: TextMeta('Daftar', size: 14, weight: FontWeight.w400, color: Utils.colorFromHex(ColorCode.bluePrimary))
                   ),
                 ],
               ),
@@ -296,6 +299,96 @@ class _LoginScreenState extends State<LoginScreen> {
           )
         ],
       ),
+    );
+  }
+
+  dialogForgetPassword(){
+    return showDialog<void>(
+      context: Get.context!,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          elevation: 0.0,
+          backgroundColor: Colors.white,
+          child: SingleChildScrollView(
+            child: Container(
+              child: Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Wrap(
+                  // alignment: WrapAlignment.center,
+                  children: <Widget>[
+                    Column(
+                      children: [
+                        TextMeta('Silahkan masukan alamat email anda', size: 16, weight: FontWeight.w600, color: Colors.black87),
+                        SizedBox(height: 15),
+                        TextField(
+                          // focusNode: _focusEmail,
+                          controller: controller.edtEmailForget,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                                  borderSide: BorderSide(color: Utils.colorFromHex(ColorCode.bluePrimary))),
+                              focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                                  borderSide: BorderSide(color: Utils.colorFromHex(ColorCode.bluePrimary))),
+                              fillColor: Colors.white,
+                              hintText: 'Alamat Email',
+                              labelText: 'Alamat Email',
+                              labelStyle: GoogleFonts.roboto(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: Utils.colorFromHex(ColorCode.greyPrimary)
+                              ),
+                              contentPadding: EdgeInsets.only(top: 20, left: 20, bottom: 20)
+                          ),
+                          // onChanged: (val)=> controller.isEnableLogin(),
+                        ),
+                        SizedBox(height: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            UnitTabWidget(
+                                label: 'Lanjut',
+                                color: Utils.colorFromHex(ColorCode.bgBluePrimary),
+                                textColor: Utils.colorFromHex(ColorCode.bluePrimary),
+                                onClick: (){
+                                  controller.postForgetPassword(context, controller.edtEmailForget.text, (){
+                                    Get.back();
+                                    DialogConstant.messageInfo(
+                                      context: context,
+                                      title: 'Informasi',
+                                      message: 'Silahkan check email anda',
+                                      onClose: ()=>Get.back()
+                                    );
+                                  }, (msg){
+                                    Get.back();
+                                    DialogConstant.messageAlert(
+                                      context: context,
+                                      title: 'Peringatan',
+                                      message: msg,
+
+                                    );
+                                  });
+                                }
+                            ),
+                            SizedBox(width: 10),
+                            UnitTabWidget(label: 'Batal', color: Colors.grey.shade300, textColor: Colors.black87, onClick: (){
+                              Get.back();
+                            })
+                          ],
+                        ),
+                        SizedBox(height: 10),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

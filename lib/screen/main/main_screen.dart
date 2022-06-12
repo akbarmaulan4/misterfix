@@ -7,6 +7,7 @@ import 'package:misterfix/screen/main/home/home_screen.dart';
 import 'package:misterfix/screen/main/notifikasi/notifikasi_screen.dart';
 import 'package:misterfix/screen/main/order/tab_order_screen.dart';
 import 'package:misterfix/screen/main/profile/profile_screen.dart';
+import 'package:misterfix/screen/main/unit/scan_qr_screen.dart';
 import 'package:misterfix/screen/main/unit/unit_information_screen.dart';
 import 'package:misterfix/utils/color_code.dart';
 import 'package:misterfix/utils/constant_style.dart';
@@ -107,7 +108,9 @@ class _MainScreenState extends State<MainScreen> {
       body: Obx(()=>changeScreen(controller.posMenu.value)),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: InkWell(
-        onTap: ()=>Get.to(()=>UnitInformationScreen()),
+        // onTap: ()=>Get.to(()=>UnitInformationScreen()),
+        // onTap: ()=>Get.to(()=>QRViewExample()),
+        onTap: ()=>Get.to(()=>ScanQrScreen()),
         child: Container(
           padding: EdgeInsets.only(top: 25),
           child: SvgPicture.asset(

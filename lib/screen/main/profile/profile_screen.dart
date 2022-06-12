@@ -5,6 +5,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:get/get.dart';
 import 'package:misterfix/controller/profile/profile_controller.dart';
+import 'package:misterfix/controller/unit/unit_controller.dart';
 import 'package:misterfix/model/profile/profile_model.dart';
 import 'package:misterfix/screen/main/profile/about_section/about_screen.dart';
 import 'package:misterfix/screen/main/profile/faq_section/faq_screen.dart';
@@ -220,6 +221,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 LocalData.removeAllPreference();
                 LocalData.saveToken(token);
                 LocalData.saveRemember(remeber);
+                Get.deleteAll();
                 SystemNavigator.pop();
               }
             );

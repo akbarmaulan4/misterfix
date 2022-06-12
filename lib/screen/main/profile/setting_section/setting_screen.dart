@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
 import 'package:misterfix/controller/profile/profile_controller.dart';
+import 'package:misterfix/screen/auth/forget_password_screen.dart';
 import 'package:misterfix/screen/main/profile/setting_section/bahasa_screen.dart';
 import 'package:misterfix/screen/main/profile/setting_section/edit_profile_screen.dart';
 import 'package:misterfix/screen/main/profile/setting_section/reset_password_screen.dart';

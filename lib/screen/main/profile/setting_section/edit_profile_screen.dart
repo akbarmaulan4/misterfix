@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:misterfix/controller/profile/profile_controller.dart';
+import 'package:misterfix/model/unit/category/category_model.dart';
 import 'package:misterfix/utils/color_code.dart';
 import 'package:misterfix/utils/constant_style.dart';
 import 'package:misterfix/utils/utils.dart';
@@ -29,10 +30,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     // TODO: implement initState
     super.initState();
     controller.initEditProfile();
+    controller.getCategoryService();
   }
 
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: new AppBar(
         backgroundColor: Utils.colorFromHex(ColorCode.bluePrimary),
@@ -40,9 +43,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         leading: Icon(Icons.arrow_back, color: Colors.white ),
         title: new TextMeta('Edit Profile', size: 16, weight: FontWeight.w500),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: Icon(Icons.save_rounded),
+          InkWell(
+            onTap: ()=>controller.updateProfile(context),
+            child: Padding(
+              padding: const EdgeInsets.only(right: 10),
+              child: Icon(Icons.save_rounded),
+            ),
           )
         ],
       ),
@@ -83,7 +89,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ) : ClipOval(
                       child: CachedNetworkImage(
                         placeholder: (context, url) => Center(),
-                        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/FBS_logo_1.jpg/600px-FBS_logo_1.jpg',
+                        imageUrl: controller.dataProfile.value.avatar != '' ? controller.dataProfile.value.avatar:
+                          'https://fe.unram.ac.id/wp-content/uploads/2015/12/no-profile-img.gif',
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -179,7 +186,33 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ],
                     ),
                     SizedBox(height: 15),
-                    autoComplete(controller.dataKeahlian.value),
+                    autoComplete(controller.dataCategory.value),
+                    Container(
+                      child: Wrap(
+                        children: controller.selectedKeahlian.map((element) =>
+                          Container(
+                            width: size.width * 0.30,
+                            padding: EdgeInsets.all(10),
+                            margin: EdgeInsets.only(right: 5,top: 5),
+                            decoration: ConstantStyle.boxButtonBorder(
+                              color: Colors.white,
+                              radius: 8,
+                              widthBorder: 1,
+                              colorBorder: Colors.blue.shade200
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(child: Container(child: TextMeta(element.name, color: Colors.black45,))),
+                                InkWell(
+                                  onTap: ()=>controller.removeKeahlian(element),
+                                  child: Icon(Icons.close, size: 15,)
+                                )
+                              ],
+                            )
+                          )
+                        ).toList()
+                      ),
+                    ),
                     SizedBox(height: 20),
                     TextField(
                       keyboardType: TextInputType.multiline,
@@ -263,7 +296,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  autoComplete(List<String> dataKeahlian){
+  autoComplete(List<CategoryModel> dataKeahlian){
     return Container(
       child: TypeAheadField(
         textFieldConfiguration: TextFieldConfiguration(
@@ -290,35 +323,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             )
         ),
         suggestionsCallback: (pattern) async {
-          List<String> data = dataKeahlian.where((element) => element.toLowerCase().contains(pattern)).toList();
+          List<CategoryModel> data = dataKeahlian.where((element) => element.name.toLowerCase().contains(pattern)).toList();
           return data;
         },
         hideOnError: true,
         itemBuilder: (context, suggestion) {
-          // var data = suggestion as ItemFieldModel;
+          var data = suggestion as CategoryModel;
           return ListTile(
             leading: Icon(Icons.check_circle_outline_rounded),
-            title: Text(suggestion.toString()),
-            trailing: InkWell(
-              onTap: (){
-                FocusScope.of(context).requestFocus(new FocusNode());
-                controller.removeKeahlian(suggestion.toString());
-              },
-              child: Icon(Icons.close)
-            ),
+            title: Text(data.name),
           );
         },
         noItemsFoundBuilder: (context) => ListTile(
           onTap: (){
             FocusScope.of(context).requestFocus(new FocusNode());
-            controller.addKeahlian(controller.edtKeahlian.text);
+            // controller.addKeahlian(controller.edtKeahlian.text);
           },
-          leading: Icon(Icons.add_circle_outline_rounded, color: Utils.colorFromHex(ColorCode.bluePrimary),),
-          title: TextMeta('Tambah Keahlian', size: 16, weight: FontWeight.w600, color: Utils.colorFromHex(ColorCode.bluePrimary)),
+          // leading: Icon(Icons.add_circle_outline_rounded, color: Utils.colorFromHex(ColorCode.bluePrimary),),
+          title: TextMeta('Data tidak ditemukan', size: 16, weight: FontWeight.w500),
         ),
         onSuggestionSelected: (suggestion) {
+          var data = suggestion as CategoryModel;
           FocusScope.of(context).requestFocus(new FocusNode());
-          controller.edtKeahlian.text = suggestion.toString();
+          controller.edtKeahlian.text = '';
+          controller.addKeahlian(data);
         },
       ),
     );

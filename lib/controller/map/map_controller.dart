@@ -58,7 +58,7 @@ class MapController{
   }
 
   changeAddress(CameraPosition? cameraPosition) async{
-    List<Placemark> placemarks = await placemarkFromCoordinates(cameraPosition!.target!.latitude, cameraPosition.target.longitude);
+    List<Placemark> placemarks = await placemarkFromCoordinates(cameraPosition!.target.latitude, cameraPosition.target.longitude);
     print(placemarks);
     Placemark place = placemarks[0];
     changeLatLon(cameraPosition.target.latitude, cameraPosition.target.longitude);

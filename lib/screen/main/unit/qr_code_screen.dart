@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:misterfix/model/unit/model_success_unit.dart';
 import 'package:misterfix/model/unit/model_unit.dart';
 import 'package:misterfix/screen/main/main_screen.dart';
 import 'package:misterfix/utils/color_code.dart';
@@ -12,7 +13,7 @@ import 'package:misterfix/widget/font/text_meta.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class QrCodeScreen extends StatelessWidget {
-  ModelUnit? data;
+  ModelSuccesUnit? data;
   QrCodeScreen({this.data});
 
   @override
@@ -52,7 +53,7 @@ class QrCodeScreen extends StatelessWidget {
                 TextMeta('Unit berhasil ditambahkan !', size: 18, weight: FontWeight.w400, color: Colors.black87),
                 SizedBox(height: 20),
                 QrImage(
-                  data: 'This QR code has an embedded image as well',
+                  data: data!.code,
                   version: QrVersions.auto,
                   size: 180,
                   gapless: false,
@@ -62,21 +63,21 @@ class QrCodeScreen extends StatelessWidget {
                   ),
                 ),
                 // SizedBox(height: 15),
-                TextMeta(data != null ? data!.code:'', size: 14, weight: FontWeight.w400, color: Colors.black87),
+                TextMeta(data != null ? data!.code:'', size: 14, weight: FontWeight.w400, color: Colors.black87, textAlign: TextAlign.center,),
                 SizedBox(height: 40),
-                TextMeta('AC - Split wall - Daikin - 2 PK - R22', size: 14, weight: FontWeight.w400, color: Colors.black87),
+                TextMeta(data!.unit, size: 14, weight: FontWeight.w400, color: Colors.black87, textAlign: TextAlign.center),
                 SizedBox(height: 10),
-                TextMeta('Gedung A - Lantai 2 - Ruang Direktur', size: 14, weight: FontWeight.w400, color: Colors.black87),
+                TextMeta(data!.location_unit, size: 14, weight: FontWeight.w400, color: Colors.black87, textAlign: TextAlign.center),
+                SizedBox(height: 10),
+                TextMeta('Tgl. Pemasangan : ${data!.tgl_pasang}', size: 14, weight: FontWeight.w500, color: Colors.black87, textAlign: TextAlign.center),
                 SizedBox(height: 20),
-                TextMeta('Bank Pembangunan Daerah Bali', size: 14, weight: FontWeight.w500, color: Colors.black87),
+                TextMeta(data!.nama_pelanggan, size: 14, weight: FontWeight.w400, color: Colors.black87, textAlign: TextAlign.center),
                 SizedBox(height: 5),
-                TextMeta('Kantor Pusat', size: 14, weight: FontWeight.w400, color: Colors.black87),
+                TextMeta(data!.alamat, size: 14, weight: FontWeight.w400, color: Colors.black87, maxLines: 5, textAlign: TextAlign.center),
                 SizedBox(height: 5),
-                TextMeta('Jalan Raya Parurangan No 3, Blitar', size: 14, weight: FontWeight.w400, color: Colors.black87, maxLines: 5,),
-                SizedBox(height: 5),
-                TextMeta('AA Bagus Mahindra', size: 14, weight: FontWeight.w400, color: Colors.black87),
-                SizedBox(height: 10),
-                TextMeta('+62 899876600', size: 14, weight: FontWeight.w400, color: Colors.black87),
+                TextMeta(data!.tlp_pelanggan != null ? data!.tlp_pelanggan : '', size: 14, weight: FontWeight.w400, color: Colors.black87, textAlign: TextAlign.center),
+                // SizedBox(height: 10),
+                // TextMeta('+62 899876600', size: 14, weight: FontWeight.w400, color: Colors.black87),
                 SizedBox(height: 40),
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 20),

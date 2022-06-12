@@ -31,7 +31,7 @@ class _UnitInfoCorporateWidgetState extends State<UnitInfoCorporateWidget> {
       child: Column(
         children: [
           FieldUnitWidget(
-              type: 'customer',
+              type: 'corp',
               label: 'Nama Perusahaan',
               controller: controller.edtNamaPerusahaan,
               data: controller.dataPerusahaan.value,

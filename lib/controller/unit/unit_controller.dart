@@ -7,7 +7,9 @@ import 'package:misterfix/model/unit/category/category_model.dart';
 import 'package:misterfix/model/unit/field/field_model.dart';
 import 'package:misterfix/model/unit/field/item_field_model.dart';
 import 'package:misterfix/model/unit/field/section_field_model.dart';
+import 'package:misterfix/model/unit/model_success_unit.dart';
 import 'package:misterfix/model/unit/model_unit.dart';
+import 'package:misterfix/model/unit/pelanggan/pelanggan_corp_model.dart';
 import 'package:misterfix/model/unit/pelanggan/pelanggan_model.dart';
 import 'package:misterfix/model/unit/pic/model_pic.dart';
 import 'package:misterfix/utils/dialog_constant.dart';
@@ -35,10 +37,14 @@ class UnitController extends GetxController{
   RxList<PelangganModel> dataGedung = <PelangganModel>[].obs;
 
   //corporate
-  RxList<PelangganModel> dataPerusahaan = <PelangganModel>[].obs;
-  Rx<PelangganModel> dataCorp = PelangganModel().obs;
+  RxList<PelangganCorpModel> dataPerusahaan = <PelangganCorpModel>[].obs;
+  Rx<PelangganCorpModel> dataCorp = PelangganCorpModel().obs;
   Rx<ModelPIC> selectedPIC = ModelPIC().obs;
 
+  //qr
+  RxString strQRCode = ''.obs;
+  RxString strIDUnitFromQR = ''.obs;
+  RxBool successGetApiQR = false.obs;
 
   RxDouble currentLatitude = 0.0.obs;
   RxDouble currentLongitude = 0.0.obs;
@@ -101,7 +107,7 @@ class UnitController extends GetxController{
   setPersonalUser(PelangganModel val){
     personalUser.value = val;
     edtNamaPelangganView.text = val.name;
-    edtNotlpView.text = val.no_telpon;
+    edtNotlpView.text = val.telpon;
   }
 
   setAlamatUser(AddressModel val){
@@ -109,23 +115,12 @@ class UnitController extends GetxController{
     edtAlamat.text = val.address;
   }
 
-  setPersonalCorp(PelangganModel val){
+  setPersonalCorp(PelangganCorpModel val){
     dataCorp.value = val;
-    edtNamaPerusahaan.text = val.name;
+    edtNamaPerusahaan.text = val.corp_name;
     // edtNotlpView.text = val.no_telpon;
   }
 
-  setAlamatCorporate(BuildContext context, AddressModel val){
-    corpAddress.value = val;
-    edtCabang.text = val.name;
-    edtAlamatPerusahaan.text = val.address;
-    getPICCorp(context, val.id);
-  }
-
-  setPICCorporate(ModelPIC val){
-    selectedPIC.value = val;
-    edtPIC.text = val.name;
-  }
 
 
   getPersonalUser(BuildContext context) async {
@@ -161,7 +156,7 @@ class UnitController extends GetxController{
           PelangganModel model = PelangganModel();
           model.id = data['id'] ?? 0;
           model.name = customer['name'] ?? '';
-          model.no_telpon = customer['telpon'] ?? '';
+          model.telpon = customer['telpon'] ?? '';
           setPersonalUser(model);
           onSuccess!(model);
         }
@@ -193,13 +188,13 @@ class UnitController extends GetxController{
       if(error != null){
       }
       if(result != null){
-        var pelanggan = (result['data'] as List).map((e) => e == null ? null : PelangganModel.fromJson(e as Map<String, dynamic>)).toList();
+        var pelanggan = (result['data'] as List).map((e) => e == null ? null : PelangganCorpModel.fromJson(e as Map<String, dynamic>)).toList();
         if(pelanggan != null){
-          PelangganModel model = PelangganModel();
+          PelangganCorpModel model = PelangganCorpModel();
           model.id = 1988;
-          model.name = 'Tambah Customer Baru';
+          model.corp_name = 'Tambah Customer Baru';
           pelanggan.add(model);
-          dataPerusahaan.value = pelanggan as List<PelangganModel>;
+          dataPerusahaan.value = pelanggan as List<PelangganCorpModel>;
         }
       }
     });
@@ -220,10 +215,11 @@ class UnitController extends GetxController{
       if(result != null){
         var data = result['data'];
         var customer = data['customer'];
-        PelangganModel model = PelangganModel();
+        PelangganCorpModel model = PelangganCorpModel();
         model.id = data['id'] ?? 0;
-        model.name = customer['name'] ?? '';
-        model.no_telpon = customer['telpon'] ?? '';
+        model.category = data['category'] ?? '';
+        model.code = data['code'] ?? '';
+        model.corp_name = customer['name'] ?? '';
         setPersonalCorp(model);
         onSuccess!(model);
       }
@@ -232,7 +228,12 @@ class UnitController extends GetxController{
 
   createCorporateLocation({BuildContext? context, Function? onSuccess}) async {
     DialogConstant.loading(context!, 'Mohon tunggu...');
-    NewAPI.postCreateCorporateLocation(dataCorp.value.id.toString(), edtCabang.text, edtAlamatPerusahaan.text, (result, error) {
+    NewAPI.postCreateCorporateLocation(
+        dataCorp.value.id.toString(),
+        edtCabang.text,
+        edtAlamatPerusahaan.text,
+        currentLatitudeCorp.value.toString(), currentLongitudeCorp.value.toString(),
+      (result, error) {
       Get.back();
       if(error != null){
       }
@@ -245,6 +246,13 @@ class UnitController extends GetxController{
     });
   }
 
+  setAlamatCorporate(BuildContext context, AddressModel val){
+    corpAddress.value = val;
+    edtCabang.text = val.name;
+    edtAlamatPerusahaan.text = val.address;
+    getPICCorp(context, val.id);
+  }
+
   createPICCorp({BuildContext? context, Function? onSuccess}) async {
     DialogConstant.loading(context!, 'Mohon tunggu...');
     NewAPI.postCreatePIC(corpAddress.value.id.toString(), edtPIC.text, edtTlpPIC.text, (result, error) {
@@ -252,12 +260,18 @@ class UnitController extends GetxController{
       if(error != null){
       }
       if(result != null){
-        // var data = AddressModel.fromJson(result['data']);
+        var data = ModelPIC.fromJson(result['data']);
         // dataAlamatCorporate.value.add(data);
-        // setAlamatCorporate(context, data);
-        // onSuccess!(data);
+        setPICCorporate(data);
+        onSuccess!(data);
       }
     });
+  }
+
+
+  setPICCorporate(ModelPIC val){
+    selectedPIC.value = val;
+    edtPIC.text = val.name;
   }
 
   getPICCorp(BuildContext context, int id) async {
@@ -403,7 +417,9 @@ class UnitController extends GetxController{
 
   createUnit({BuildContext? context, Function? onSuccess, Function? onError}) async {
     DialogConstant.loading(context!, 'Mohon tunggu...');
-    NewAPI.postCreateUnit(personalUser.value.id.toString(),
+    NewAPI.postCreateUnit(
+        strQRCode.value,
+        personalUser.value.id.toString(),
         userAddress.value,
         categorySelectd,
         edtTglPasang.text,
@@ -411,26 +427,68 @@ class UnitController extends GetxController{
       Get.back();
       if(error != null){
         String errorMsg = '';
-        if(error['message']['code'] != null){
-          errorMsg = error['message']['code'];
+        try{
+          DialogConstant.messageAlert(
+            context: context,
+            title: 'Peringatan',
+            message: error['message'],
+          );
+        }catch(e){
+          if(error['message']['code'] != null){
+            errorMsg = error['message']['code'];
+          }
         }
-        DialogConstant.messageAlert(
-          context: context,
-          title: 'Peringatan',
-          message: errorMsg,
-        );
       }
       if(result != null){
         var errorTrue = result['error'];
         if(!errorTrue){
-          ModelUnit data = ModelUnit.fromJson(result['data']);
+          ModelSuccesUnit model = ModelSuccesUnit();
+          var data = result['data'];
+          model.code = data['unit']['code'];
+          var dataUnit = data['unit_field_values'] ?? [];
+          if((dataUnit as List).length > 0){
+
+            //tipe service
+            String modelService = categorySelectd.name;
+            if(categorySelectd.id == 1){
+              String pemasangan = (dataUnit as List)[3]['fields_value']['value'];
+              String merk = (dataUnit as List)[4]['fields_value']['value'];
+              String pk = (dataUnit as List)[5]['fields_value']['value'];
+              String freon = (dataUnit as List)[6]['fields_value']['value'];
+              model.unit = '${modelService}-${pemasangan}-${merk}-${pk}-${freon}';
+            }else{
+              String install = (dataUnit as List)[0]['fields_value']['value'];
+              String type = (dataUnit as List)[1]['fields_value']['value'];
+              model.unit = '${install}-${type}';
+            }
+
+            //lokasi ruangan
+            if(categorySelectd.id == 1){
+              String gedung = (dataUnit as List)[0]['fields_value']['value'];
+              String lantai = (dataUnit as List)[1]['fields_value']['value'];
+              String ruangan = (dataUnit as List)[2]['fields_value']['value'];
+              model.location_unit = '${gedung}-${lantai}-${ruangan}';
+            }else{
+              model.location_unit = '';
+            }
+
+          }
+          model.tgl_pasang = data['unit']['pemasangan'];
+          model.nama_pelanggan = data['unit']['customer']['customer']['name'];
+          model.tlp_pelanggan = data['unit']['customer']['customer']['telpon'];
+          model.nama_tempat = data['unit']['location']['name'];
+          model.alamat = data['unit']['location']['address'];
+
+          onSuccess!(model);
+
+          // ModelUnit data = ModelUnit.fromJson(result['data']);
           // var customer = data['customer']['customer'];
           // PelangganModel model = PelangganModel();
           // model.id = customer['id'] ?? 0;
           // model.name = customer['name'] ?? '';
           // model.no_telpon = customer['telpon'] ?? '';
           // setPersonalUser(model);
-          onSuccess!(data);
+          // onSuccess!(data);
         }
       }
     });
@@ -438,36 +496,89 @@ class UnitController extends GetxController{
 
   createUnitCorporate({BuildContext? context, Function? onSuccess, Function? onError}) async {
     DialogConstant.loading(context!, 'Mohon tunggu...');
-    NewAPI.postCreateUnit(dataCorp.value.id.toString(),
+    NewAPI.postCreateUnitCorp(
+        strQRCode.value,
+        dataCorp.value.id.toString(),
         corpAddress.value,
         categorySelectd,
+        selectedPIC.value,
         edtTglPasang.text,
         edtCatatan.text, postFields, (result, error) {
           Get.back();
           if(error != null){
             String errorMsg = '';
-            if(error['message']['code'] != null){
-              errorMsg = error['message']['code'];
+            try{
+              DialogConstant.messageAlert(
+                context: context,
+                title: 'Peringatan',
+                message: error['message'],
+              );
+            }catch(e){
+              if(error['message']['code'] != null){
+                errorMsg = error['message']['code'];
+              }
             }
-            DialogConstant.messageAlert(
-              context: context,
-              title: 'Peringatan',
-              message: errorMsg,
-            );
           }
           if(result != null){
             var errorTrue = result['error'];
             if(!errorTrue){
-              ModelUnit data = ModelUnit.fromJson(result['data']);
-              // var customer = data['customer']['customer'];
-              // PelangganModel model = PelangganModel();
-              // model.id = customer['id'] ?? 0;
-              // model.name = customer['name'] ?? '';
-              // model.no_telpon = customer['telpon'] ?? '';
-              // setPersonalUser(model);
-              onSuccess!(data);
+              ModelSuccesUnit model = ModelSuccesUnit();
+              var data = result['data'];
+              model.code = data['unit']['code'];
+              var dataUnit = data['unit_field_values'] ?? [];
+              if((dataUnit as List).length > 0){
+
+                //tipe service
+                String modelService = categorySelectd.name;
+                if(categorySelectd.id == 1){
+                  String pemasangan = (dataUnit as List)[3]['fields_value']['value'];
+                  String merk = (dataUnit as List)[4]['fields_value']['value'];
+                  String pk = (dataUnit as List)[5]['fields_value']['value'];
+                  String freon = (dataUnit as List)[6]['fields_value']['value'];
+                  model.unit = '${modelService}-${pemasangan}-${merk}-${pk}-${freon}';
+                }else{
+                  String install = (dataUnit as List)[0]['fields_value']['value'];
+                  String type = (dataUnit as List)[1]['fields_value']['value'];
+                  model.unit = '${install}-${type}';
+                }
+
+                //lokasi ruangan
+                if(categorySelectd.id == 1){
+                  String gedung = (dataUnit as List)[0]['fields_value']['value'];
+                  String lantai = (dataUnit as List)[1]['fields_value']['value'];
+                  String ruangan = (dataUnit as List)[2]['fields_value']['value'];
+                  model.location_unit = '${gedung}-${lantai}-${ruangan}';
+                }else{
+                  model.location_unit = '';
+                }
+
+              }
+              model.tgl_pasang = data['unit']['pemasangan'];
+              model.nama_pelanggan = data['unit']['customer']['customer']['name'];
+              model.tlp_pelanggan = data['unit']['customer']['customer']['telpon'];
+              model.nama_tempat = data['unit']['location']['name'];
+              model.alamat = data['unit']['location']['address'];
+
+              onSuccess!(model);
             }
           }
         });
+  }
+
+  getScanQR({BuildContext? context, String? code, Function? onSuccess}) async {
+    DialogConstant.loading(context!, 'Mohon tunggu...');
+    NewAPI.getQRCodeScan(code!, (result, error) {
+      Get.back();
+      if(error != null){
+      }
+      if(result != null){
+        strIDUnitFromQR.value = result['data']['unit']['id'].toString();
+        successGetApiQR.value = true;
+        // var data = ModelPIC.fromJson(result['data']);
+        // // dataAlamatCorporate.value.add(data);
+        // setPICCorporate(data);
+        onSuccess!();
+      }
+    });
   }
 }
