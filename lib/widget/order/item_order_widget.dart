@@ -9,11 +9,43 @@ class ItemOrderWidget extends StatelessWidget {
   String? status;
   Color? colorStatus;
   Function? onCLick;
-  ItemOrderWidget({this.status, this.colorStatus, this.onCLick});
+  Map? data_history;
+  Map? data_profile;
+  ItemOrderWidget(
+      {this.status,
+      this.colorStatus,
+      this.onCLick,
+      this.data_history,
+      this.data_profile});
   @override
   Widget build(BuildContext context) {
+    String nama = '';
+    String alamat = '';
+    String note = '';
+    String tanggal = '';
+    String link_avatar = '';
+    if (data_history != null) {
+      note = data_history!['service_category']['name'] +
+          ' | ' +
+          data_history!['customer_note'];
+      alamat = data_history!['booking']['location_id'].toString();
+      tanggal = data_history!['booking']['date_service'];
+      status = data_history!['booking']['status'];
+    } else {
+      note = 'Service AC | 3/4 PK | R 22';
+      alamat = 'Jl. Raya Pemecutan no 12 C Denpasar';
+      tanggal = 'Kamis, 29 Nov 2021 | 10:00 WIB';
+    }
+    if (data_profile != null) {
+      link_avatar = data_profile!['avatar'];
+      nama = data_profile!['name'];
+    } else {
+      link_avatar =
+          'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/FBS_logo_1.jpg/600px-FBS_logo_1.jpg';
+      nama = 'febi';
+    }
     return InkWell(
-      onTap: ()=>onCLick!(),
+      onTap: () => onCLick!(),
       child: Container(
         decoration: ConstantStyle.boxShadowButtonBorder(
             color: Colors.white,
@@ -21,8 +53,7 @@ class ItemOrderWidget extends StatelessWidget {
             spreadRadius: 0,
             blurRadius: 5,
             colorShadow: Colors.grey.shade400,
-            offset: Offset(1, 3)
-        ),
+            offset: Offset(1, 3)),
         padding: EdgeInsets.all(15),
         margin: EdgeInsets.only(bottom: 10, left: 5, right: 5),
         child: Row(
@@ -34,33 +65,62 @@ class ItemOrderWidget extends StatelessWidget {
               width: 40,
               decoration: ConstantStyle.boxCircle(),
               child: ClipOval(
-                child: CachedNetworkImage(
-                  placeholder: (context, url) => Center(),
-                  imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/FBS_logo_1.jpg/600px-FBS_logo_1.jpg',
-                  fit: BoxFit.cover,
-                ),
+                child: link_avatar != null
+                    ? CachedNetworkImage(
+                        placeholder: (context, url) => Center(),
+                        imageUrl: link_avatar,
+                        fit: BoxFit.cover,
+                      )
+                    : Center(),
               ),
             ),
             SizedBox(width: 10),
-            Expanded(child: Container(
+            Expanded(
+                child: Container(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      TextMeta('Iqbal Ramadhan', size: 12, weight: FontWeight.w500, color: Colors.black87,),
-                      Expanded(child: Container(
+                      TextMeta(
+                        nama,
+                        size: 12,
+                        weight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                      Expanded(
+                          child: Container(
                         alignment: Alignment.centerRight,
-                        child: TextMeta(status ?? '', size: 12, color: colorStatus ?? Utils.colorFromHex(ColorCode.bluePrimary),),
+                        child: TextMeta(
+                          status ?? '',
+                          size: 12,
+                          color: colorStatus ??
+                              Utils.colorFromHex(ColorCode.bluePrimary),
+                        ),
                       ))
                     ],
                   ),
                   SizedBox(height: 8),
-                  TextMeta('Service AC | 3/4 PK | R 22', size: 12, weight: FontWeight.w400, color: Utils.colorFromHex(ColorCode.bluePrimary),),
+                  TextMeta(
+                    note,
+                    size: 12,
+                    weight: FontWeight.w400,
+                    color: Utils.colorFromHex(ColorCode.bluePrimary),
+                  ),
                   SizedBox(height: 3),
-                  TextMeta('Jl. Raya Pemecutan no 12 C Denpasar', size: 12, weight: FontWeight.w400, color: Utils.colorFromHex(ColorCode.greyPrimary),),
+                  TextMeta(
+                    alamat,
+                    size: 12,
+                    weight: FontWeight.w400,
+                    color: Utils.colorFromHex(ColorCode.greyPrimary),
+                  ),
                   SizedBox(height: 3),
-                  TextMeta('Kamis, 29 Nov 2021 | 10:00 WIB', size: 12, weight: FontWeight.w400, color: Utils.colorFromHex(ColorCode.greyPrimary),),
+                  TextMeta(
+                    tanggal,
+                    size: 12,
+                    weight: FontWeight.w400,
+                    color: Utils.colorFromHex(ColorCode.greyPrimary),
+                  ),
                 ],
               ),
             ))

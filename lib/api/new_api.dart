@@ -484,4 +484,14 @@ class NewAPI{
       callback(result, error);
     });
   }
+
+  static getHistoryOrder(void callback(Map, Exception)) async {
+    var header = new Map<String, String>();
+    String token = await LocalData.getToken();
+    header['Content-Type'] = 'application/json';
+    header['Authorization'] = 'Bearer $token';
+    baseGet('/provider/order-history', header, (result, error) {
+      callback(result, error);
+    });
+  }
 }

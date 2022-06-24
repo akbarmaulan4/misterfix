@@ -4,12 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:get/get.dart';
+import 'package:misterfix/controller/home/home_controller.dart';
+import 'package:misterfix/controller/profile/profile_controller.dart';
 import 'package:misterfix/utils/color_code.dart';
 import 'package:misterfix/utils/constant_style.dart';
 import 'package:misterfix/utils/image_constant.dart';
 import 'package:misterfix/utils/utils.dart';
 import 'package:misterfix/widget/font/text_meta.dart';
 import 'package:misterfix/widget/order/item_order_widget.dart';
+import 'package:misterfix/widget/order/new_item_order_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -17,72 +21,76 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  HomeController controller = HomeController();
+  ProfileController profileController = Get.put(ProfileController());
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    controller.getHistoryUnitHome();
+    profileController.getProfile(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     return Scaffold(
-      body: Container(
+      body: Obx(()=>Container(
         child: Stack(
           children: [
-            body(),
+            Container(
+              color: Utils.colorFromHex(ColorCode.bgSurface),
+              height: double.infinity,
+              child: Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    header(),
+                    SizedBox(height: 140),
+                    Expanded(child: Container(
+                      child: SingleChildScrollView(
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 15),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              TextMeta('Order Status', size: 18, weight: FontWeight.w600, color: Colors.black87,),
+                              SizedBox(height: 15),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  box(label: 'Incoming', textColor: Utils.colorFromHex(ColorCode.darkOrange)),
+                                  box(label: 'On Going', textColor: Utils.colorFromHex(ColorCode.bluePrimary)),
+                                  box(label: 'Cancel', textColor: Utils.colorFromHex(ColorCode.orangePrimary)),
+                                  box(label: 'Done', textColor: Utils.colorFromHex(ColorCode.darkBlue)),
+
+                                ],
+                              ),
+                              SizedBox(height: 25),
+                              TextMeta('Order History', size: 18, weight: FontWeight.w600, color: Colors.black87,),
+                              SizedBox(height: 15),
+                              Column(
+                                children: controller.dataHistory.value.map((data) => NewItemOrderWidget(
+                                    data: data,
+                                    dataProfile: profileController.dataProfile.value,
+                                    onClick: (){},
+                                    colorStatus: Utils.colorFromHex(ColorCode.orangePrimary))
+                                ).toList(),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ))
+
+                  ],
+                ),
+              ),
+            ),
             banner()
           ],
         ),
-      ),
-    );
-  }
-
-  body(){
-    return Container(
-      color: Utils.colorFromHex(ColorCode.bgSurface),
-      height: double.infinity,
-      child: Container(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            header(),
-            SizedBox(height: 140),
-            Expanded(child: Container(
-              child: SingleChildScrollView(
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 15),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextMeta('Order Status', size: 18, weight: FontWeight.w600, color: Colors.black87,),
-                      SizedBox(height: 15),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          box(label: 'Incoming', textColor: Utils.colorFromHex(ColorCode.darkOrange)),
-                          box(label: 'On Going', textColor: Utils.colorFromHex(ColorCode.bluePrimary)),
-                          box(label: 'Cancel', textColor: Utils.colorFromHex(ColorCode.orangePrimary)),
-                          box(label: 'Done', textColor: Utils.colorFromHex(ColorCode.darkBlue)),
-
-                        ],
-                      ),
-                      SizedBox(height: 25),
-                      TextMeta('Order History', size: 18, weight: FontWeight.w600, color: Colors.black87,),
-                      SizedBox(height: 15),
-                      Column(
-                        children: [
-                          ItemOrderWidget(status: 'Incoming', colorStatus: Utils.colorFromHex(ColorCode.orangePrimary)),
-                          ItemOrderWidget(status: 'Incoming', colorStatus: Utils.colorFromHex(ColorCode.orangePrimary)),
-                          ItemOrderWidget(status: 'Incoming', colorStatus: Utils.colorFromHex(ColorCode.orangePrimary)),
-                          ItemOrderWidget(status: 'Incoming', colorStatus: Utils.colorFromHex(ColorCode.orangePrimary)),
-                          ItemOrderWidget(status: 'Incoming', colorStatus: Utils.colorFromHex(ColorCode.orangePrimary)),
-                          ItemOrderWidget(status: 'Incoming', colorStatus: Utils.colorFromHex(ColorCode.orangePrimary)),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ))
-
-          ],
-        ),
-      ),
+      )),
     );
   }
 

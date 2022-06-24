@@ -5,6 +5,7 @@ import 'package:misterfix/utils/color_code.dart';
 import 'package:misterfix/utils/constant_style.dart';
 import 'package:misterfix/utils/utils.dart';
 import 'package:misterfix/widget/font/text_meta.dart';
+import 'package:misterfix/widget/notif/item_notifikasi_widget.dart';
 import 'package:misterfix/widget/order/item_order_widget.dart';
 import 'package:misterfix/widget/unit/unit_tab_widget.dart';
 
@@ -74,7 +75,10 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
                 child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: controller.dataUnred.map((element) => ItemOrderWidget(status: '15 Menit', colorStatus: Utils.colorFromHex(ColorCode.orangePrimary))).toList(),
+                    children: controller.dataUnred.map((element) => ItemNotifikasiWidget(
+                        data: element,
+                        status: '15 Menit',
+                        colorStatus: Utils.colorFromHex(ColorCode.orangePrimary))).toList(),
                     // children: [
                     //   ItemOrderWidget(status: '15 Menit', colorStatus: Utils.colorFromHex(ColorCode.orangePrimary)),
                     //   ItemOrderWidget(status: '20 Menit', colorStatus: Utils.colorFromHex(ColorCode.orangePrimary)),

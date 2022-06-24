@@ -79,17 +79,23 @@ class _UnitInformationScreenState extends State<UnitInformationScreen> {
                 SizedBox(height: 30),
                 TextMeta('Informasi Unit', size: 16, weight: FontWeight.w400, color: Colors.black87),
                 SizedBox(height: 15),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: controller.dataCategory.asMap().map((index, value) => MapEntry(index, UnitTabWidget(
-                      label: value.name,
-                      color: controller.tabInfoUnit.value == value.name ? Utils.colorFromHex(ColorCode.bgBluePrimary):Colors.grey.shade300,
-                      textColor: controller.tabInfoUnit.value == value.name ? Utils.colorFromHex(ColorCode.bluePrimary):Colors.black87,
-                      onClick: (){
-                        controller.changeTabInfoUnit(value);
-                        controller.getFieldService(value.id.toString());
-                      },
-                  ))).values.toList(),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: controller.dataCategory.asMap().map((index, value) => MapEntry(index, Container(
+                      margin: EdgeInsets.only(right: 10),
+                      child: UnitTabWidget(
+                          label: value.name,
+                          color: controller.tabInfoUnit.value == value.name ? Utils.colorFromHex(ColorCode.bgBluePrimary):Colors.grey.shade300,
+                          textColor: controller.tabInfoUnit.value == value.name ? Utils.colorFromHex(ColorCode.bluePrimary):Colors.black87,
+                          onClick: (){
+                            controller.changeTabInfoUnit(value);
+                            controller.getFieldService(value.id.toString());
+                          },
+                      ),
+                    ))).values.toList(),
+                  ),
                 ),
                 SizedBox(height: 25),
                 controller.dataSection.length > 0 ? Column(
